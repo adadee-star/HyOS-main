@@ -82,18 +82,20 @@ public class HyOS extends Application {
         root.setStyle("-fx-background-color: #0f172a;");
 
         desktop = new Pane();
-        desktop.setVisible(false);
+        desktop.setVisible(true);
 
-        dock = new HBox(15);
+        dock = new HBox(5);
         dock.setAlignment(Pos.CENTER);
-        dock.setPadding(new Insets(10, 25, 10, 25));
+        dock.setPadding(new Insets(8, 15, 8, 15));
         dock.setStyle(
                 "-fx-background-color: rgba(15,23,42,0.9); -fx-background-radius: 20; -fx-border-color: #334155;");
-        dock.setMaxHeight(65);
-        dock.setVisible(false);
+        dock.setMaxHeight(60);
+        dock.setMaxWidth(Double.MAX_VALUE);
+        dock.setPrefWidth(Double.MAX_VALUE);
+        dock.setVisible(true);
 
         systemClock = new Label();
-        systemClock.setStyle("-fx-text-fill: #38bdf8; -fx-font-family: monospace; -fx-font-weight: bold;");
+        systemClock.setStyle("-fx-text-fill: #38bdf8; -fx-font-family: monospace; -fx-font-weight: bold; -fx-font-size: 12; -fx-padding: 0 10;");
         startClockUpdate();
 
         refreshLauncher();
@@ -122,9 +124,12 @@ public class HyOS extends Application {
                 createLauncher("📂", "hyDisk", () -> spawnWindow("Files", createFileManager())),
                 createLauncher("🎬", "Media", () -> spawnWindow("hyMedia Player", createMediaPlayer())),
                 createLauncher("🎨", "Paint", () -> spawnWindow("hyPaint", createPaintApp())),
-                createLauncher("🛒", "Store", () -> spawnWindow("App Store", createAppStore())),
-                new Separator(Orientation.VERTICAL),
-                systemClock);
+                createLauncher("🛒", "Store", () -> spawnWindow("App Store", createAppStore())));
+        
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        dock.getChildren().add(spacer);
+        dock.getChildren().add(systemClock);
     }
 
     // ── Terminal ─────────────────────────────────────────────────────────────────
@@ -523,18 +528,24 @@ public class HyOS extends Application {
         VBox s = new VBox(15);
         s.setPadding(new Insets(20));
         s.setStyle("-fx-background-color: #0f172a;");
+        Label storeTitle = new Label("Software Store");
+        storeTitle.setStyle("-fx-text-fill: #38bdf8; -fx-font-size: 16; -fx-font-weight: bold;");
+        
         Button b1 = new Button("Install 🕹️ Snake");
+        b1.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
         b1.setOnAction(e -> {
             dock.getChildren().add(1, createLauncher("🕹️", "Snake", () -> spawnSnake()));
             b1.setText("✔ Installed");
             b1.setDisable(true);
         });
         Button b2 = new Button("Install 📝 Notepad");
+        b2.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
         b2.setOnAction(e -> {
             dock.getChildren().add(1, createLauncher("📝", "Notepad", () -> spawnWindow("Notepad", createNotepad())));
             b2.setDisable(true);
         });
         Button b3 = new Button("Install 📊 hyStat");
+        b3.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
         b3.setOnAction(e -> {
             dock.getChildren().add(1,
                     createLauncher("📊", "hyStat", () -> spawnWindow("System Monitor", createStatsApp())));
@@ -542,13 +553,14 @@ public class HyOS extends Application {
             b3.setDisable(true);
         });
         Button b4 = new Button("Install 🎨 Themes");
+        b4.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
         b4.setOnAction(e -> {
             dock.getChildren().add(1,
                     createLauncher("🎨", "Themes", () -> spawnWindow("Theme Picker", createThemeApp())));
             b4.setText("✔ Installed");
             b4.setDisable(true);
         });
-        s.getChildren().addAll(new Label("Software Store"), b1, b2, b3, b4);
+        s.getChildren().addAll(storeTitle, b1, b2, b3, b4);
         return s;
     }
 
@@ -919,8 +931,14 @@ public class HyOS extends Application {
     // ───────────────────────────────────────────────────────────────────
     private Button createLauncher(String icon, String name, Runnable action) {
         Button b = new Button(icon);
+        b.setPrefWidth(38);
+        b.setPrefHeight(38);
+        b.setMinWidth(35);
+        b.setMinHeight(35);
+        b.setMaxWidth(42);
+        b.setMaxHeight(42);
         b.setTooltip(new Tooltip(name));
-        b.setStyle("-fx-font-size: 24; -fx-background-color: transparent; -fx-cursor: hand;");
+        b.setStyle("-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
         b.setOnAction(e -> action.run());
         return b;
     }

@@ -1,0 +1,6 @@
+
+The following files have been resolved:
+   org.openjfx:javafx-controls:jar:21:compile[36m -- module javafx.controlsEmpty[0;1m [auto][m
+   org.openjfx:javafx-fxml:jar:21:compile[36m -- module javafx.fxmlEmpty[0;1m [auto][m
+   org.openjfx:javafx-web:jar:21:compile[36m -- module javafx.webEmpty[0;1m [auto][m
+
