@@ -938,7 +938,14 @@ public class HyOS extends Application {
         b.setMaxWidth(42);
         b.setMaxHeight(42);
         b.setTooltip(new Tooltip(name));
-        b.setStyle("-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        b.setStyle("-fx-font-size: 18; -fx-background-color: #334155; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-radius: 8; -fx-border-color: #475569; -fx-border-width: 1;");
+        b.hoverProperty().addListener((obs, oldV, newV) -> {
+            if (newV) {
+                b.setStyle("-fx-font-size: 18; -fx-background-color: #475569; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-radius: 8; -fx-border-color: #38bdf8; -fx-border-width: 1;");
+            } else {
+                b.setStyle("-fx-font-size: 18; -fx-background-color: #334155; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-radius: 8; -fx-border-color: #475569; -fx-border-width: 1;");
+            }
+        });
         b.setOnAction(e -> action.run());
         return b;
     }
