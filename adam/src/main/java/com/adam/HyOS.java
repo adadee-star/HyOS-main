@@ -532,20 +532,21 @@ public class HyOS extends Application {
         storeTitle.setStyle("-fx-text-fill: #38bdf8; -fx-font-size: 16; -fx-font-weight: bold;");
         
         Button b1 = new Button("Install 🕹️ Snake");
-        b1.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
+        b1.setStyle("-fx-text-fill: grey; -fx-font-size: 16; -fx-padding: 10;");
         b1.setOnAction(e -> {
             dock.getChildren().add(1, createLauncher("🕹️", "Snake", () -> spawnSnake()));
             b1.setText("✔ Installed");
             b1.setDisable(true);
         });
         Button b2 = new Button("Install 📝 Notepad");
-        b2.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
+        b2.setStyle("-fx-text-fill: grey; -fx-font-size: 14; -fx-padding: 10;");
         b2.setOnAction(e -> {
             dock.getChildren().add(1, createLauncher("📝", "Notepad", () -> spawnWindow("Notepad", createNotepad())));
+            b2.setText("✔ Installed");
             b2.setDisable(true);
         });
         Button b3 = new Button("Install 📊 hyStat");
-        b3.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
+        b3.setStyle("-fx-text-fill: grey; -fx-font-size: 14; -fx-padding: 10;");
         b3.setOnAction(e -> {
             dock.getChildren().add(1,
                     createLauncher("📊", "hyStat", () -> spawnWindow("System Monitor", createStatsApp())));
@@ -553,7 +554,7 @@ public class HyOS extends Application {
             b3.setDisable(true);
         });
         Button b4 = new Button("Install 🎨 Themes");
-        b4.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
+        b4.setStyle("-fx-text-fill: grey; -fx-font-size: 14; -fx-padding: 10;");
         b4.setOnAction(e -> {
             dock.getChildren().add(1,
                     createLauncher("🎨", "Themes", () -> spawnWindow("Theme Picker", createThemeApp())));
@@ -579,7 +580,7 @@ public class HyOS extends Application {
         VBox p = new VBox(5);
         p.setStyle("-fx-background-color: #020617;");
         WebView w = new WebView();
-        w.getEngine().load("https://www.youtube.com/embed/jfKfPfyJRdk");
+        w.getEngine().load("https://www.youtube.com");
         VBox.setVgrow(w, Priority.ALWAYS);
         p.getChildren().add(w);
         return p;
