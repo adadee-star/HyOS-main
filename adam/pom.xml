@@ -46,7 +46,7 @@
                         <!-- Usage: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.adam.HyOS</mainClass>
+                            <mainClass>com.adam.HyOS.HyOS</mainClass>
                         </configuration>
                     </execution>
                 </executions>
