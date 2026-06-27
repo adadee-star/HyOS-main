@@ -21,7 +21,15 @@ jobs:
         cache: 'maven'
 
     - name: Build with Maven
-      run: mvn clean javafx:jlink -f adam/pom.xml
+      run: |
+        echo "=== Current Folder Location ==="
+        pwd
+        echo "=== Top-Level Files Found ==="
+        ls -la
+        echo "=== Checking inside 'adam' folder ==="
+        ls -la adam || echo "No folder named 'adam' exists here."
+        echo "=== Attempting Build ==="
+        mvn clean javafx:jlink -f adam/pom.xml
 
     - name: Run jpackage
       run: |
