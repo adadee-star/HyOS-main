@@ -53,8 +53,8 @@ jobs:
         Categories=Utility;
         EOF
         
-        # 2. Provide a placeholder PNG icon so it stops complaining
-        convert -size 128x128 xc:blue target/appimage-out/HyOS/HyOS.png
+        # 2. Touch a dummy icon file to satisfy the builder
+        touch target/appimage-out/HyOS/HyOS.png
 
     - name: Build Final AppImage
       env:
