@@ -34,12 +34,16 @@ jobs:
           --module com.adam/com.adam.HyOS \
           --dest target/appimage-out
 
-    - name: Download appimagetool
+    - name: Download appimagetool and Install FUSE
       run: |
+        sudo apt-get update
+        sudo apt-get install -y libfuse2
         wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
         chmod +x appimagetool-x86_64.AppImage
 
     - name: Build Final AppImage
+      env:
+        APPIMAGE_EXTRACT_AND_RUN: 1
       run: |
         ./appimagetool-x86_64.AppImage target/appimage-out/HyOS
 
