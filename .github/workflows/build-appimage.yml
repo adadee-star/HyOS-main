@@ -28,7 +28,7 @@ jobs:
         jpackage \
           --type app-image \
           --name "HyOS" \
-          --module-path adam/target/image/mods \
+          --module-path adam/target \
           --module com.adam/com.adam.HyOS \
           --dest target/appimage-out
 
