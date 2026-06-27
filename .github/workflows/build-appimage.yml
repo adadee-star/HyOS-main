@@ -41,6 +41,21 @@ jobs:
         wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
         chmod +x appimagetool-x86_64.AppImage
 
+    - name: Create Required AppImage Metadata
+      run: |
+        # 1. Create a minimal desktop file
+        cat <<EOF > target/appimage-out/HyOS/HyOS.desktop
+        [Desktop Entry]
+        Type=Application
+        Name=HyOS
+        Exec=HyOS
+        Icon=HyOS
+        Categories=Utility;
+        EOF
+        
+        # 2. Provide a placeholder PNG icon so it stops complaining
+        convert -size 128x128 xc:blue target/appimage-out/HyOS/HyOS.png
+
     - name: Build Final AppImage
       env:
         APPIMAGE_EXTRACT_AND_RUN: 1
