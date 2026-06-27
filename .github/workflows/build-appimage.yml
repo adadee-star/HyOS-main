@@ -29,7 +29,7 @@ jobs:
           --type app-image \
           --name "HyOS" \
           --module-path adam/target/image/mods \
-          --module com.adam.HyOS/com.adam.HyOS \
+          --module com.adam/com.adam.HyOS \
           --dest target/appimage-out
 
     - name: Download appimagetool
