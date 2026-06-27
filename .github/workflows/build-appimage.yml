@@ -28,7 +28,7 @@ jobs:
         jpackage \
           --type app-image \
           --name "HyOS" \
-          --module-path adam/target/classes:adam/target/image/mods:~/.m2/repository/org/openjfx \
+          --module-path adam/target/image/mods:adam/target/classes \
           --module com.adam/com.adam.HyOS \
           --dest target/appimage-out
 
