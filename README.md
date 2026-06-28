@@ -6,5 +6,5 @@ adam>src/main>java>com/adam>HyOS.java
 
 this is the executable file
 
-[![Download AppImage](https://img.shields.io/badge/Download-AppImage-blue?style=for-the-badge&logo=linux)](https://github.com/adadee-star/HyOS-main/releases/download/HyOS/HyOS-x86_64.AppImage)
+[![Download HyOS Executable](https://img.shields.io/badge/Download-HyOS-blue?style=for-the-badge&logo=linux)](https://github.com/adadee-star/HyOS-main/releases/download/HyOS/HyOS)
 [![GitHub Downloads](https://img.shields.io/github/downloads/adadee-star/HyOS-main/total?style=flat-square&color=blue)](https://github.com/adadee-star/HyOS-main/releases)
