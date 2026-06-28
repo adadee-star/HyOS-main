@@ -6,5 +6,5 @@ adam>src/main>java>com/adam>HyOS.java
 
 this is now linux appimage downloadable
 
-[![Download AppImage](https://img.shields.io/badge/Download-AppImage-blue?style=for-the-badge&logo=linux)](https://github.com/adadee-star/HyOS-main/releases/latest/download/HyOS-x86_64.AppImage)
+(https://github.com/adadee-star/HyOS-main/raw/HyOS/squashfs-root/bin/HyOS)
 [![GitHub Downloads](https://img.shields.io/github/downloads/adadee-star/HyOS-main/total?style=flat-square&color=blue)](https://github.com/adadee-star/HyOS-main/releases)
