@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -32,6 +33,9 @@ public class HyOS extends Application {
     private StackPane root;
     private HBox dock;
     private VBox loginScreen;
+    private Label loginTitle;
+    private PasswordField loginPassword;
+    private Button loginButton;
     private Label systemClock;
 
     private boolean isRoot = false;
@@ -118,6 +122,7 @@ public class HyOS extends Application {
     private void refreshLauncher() {
         dock.getChildren().clear();
         dock.getChildren().addAll(
+                createStartButton(),
                 createLauncher("🐚", "Terminal", () -> spawnWindow("Terminal", createTerminal())),
                 createLauncher("🌐", "Browser",
                         () -> spawnWindow("Web Browser", createWebBrowser("https://www.google.com"))),
@@ -162,7 +167,7 @@ public class HyOS extends Application {
                         ta.setStyle("-fx-control-inner-background: #450a0a; -fx-text-fill: white;");
                         ta.appendText("ERASING ROOT... SYSTEM FAILURE IMMINENT.");
                         Platform.runLater(() -> spawnWindow("RECOVERY",
-                                createWebBrowser("https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1")));
+                                createWebBrowser("https://www.youtube.com")));
                     } else if (input.startsWith("open ")) {
                         handleShellLaunch(input.substring(5));
                     } else if (input.equals("ls")) {
@@ -579,7 +584,7 @@ public class HyOS extends Application {
         VBox p = new VBox(5);
         p.setStyle("-fx-background-color: #020617;");
         WebView w = new WebView();
-        w.getEngine().load("https://www.youtube.com/embed/jfKfPfyJRdk");
+        w.getEngine().load("https://www.youtube.com");
         VBox.setVgrow(w, Priority.ALWAYS);
         p.getChildren().add(w);
         return p;
@@ -884,19 +889,22 @@ public class HyOS extends Application {
     private void createLoginScreen() {
         loginScreen = new VBox(20);
         loginScreen.setAlignment(Pos.CENTER);
-        loginScreen.setStyle("-fx-background-color: #020617;");
-        PasswordField pf = new PasswordField();
-        pf.setMaxWidth(200);
-        pf.setPromptText("Password (admin)");
-        Button b = new Button("LOG IN");
-        b.setOnAction(e -> {
-            if (pf.getText().equals("admin")) {
+        loginTitle = new Label("hyOS APEX");
+        loginPassword = new PasswordField();
+        loginButton = new Button("LOG IN");
+
+        loginPassword.setMaxWidth(220);
+        loginPassword.setPromptText("Password (admin)");
+        loginButton.setOnAction(e -> {
+            if (loginPassword.getText().equals("admin")) {
                 loginScreen.setVisible(false);
                 desktop.setVisible(true);
                 dock.setVisible(true);
             }
         });
-        loginScreen.getChildren().addAll(new Label("hyOS APEX"), pf, b);
+
+        loginScreen.getChildren().addAll(loginTitle, loginPassword, loginButton);
+        updateLoginScreenTheme();
     }
 
     // ── Clock
@@ -941,6 +949,65 @@ public class HyOS extends Application {
         b.setStyle("-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
         b.setOnAction(e -> action.run());
         return b;
+    }
+
+    private Button createStartButton() {
+        Button start = new Button("Start");
+        start.setPrefWidth(70);
+        start.setPrefHeight(38);
+        start.setStyle("-fx-font-size: 13; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 8; -fx-background-radius: 8; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        start.setOnAction(e -> showStartMenu(start));
+        return start;
+    }
+
+    private void showStartMenu(Node owner) {
+        ContextMenu menu = new ContextMenu();
+        MenuItem lockItem = new MenuItem("Lock Screen");
+        MenuItem shutdownItem = new MenuItem("Shutdown");
+        MenuItem settingsItem = new MenuItem("Settings");
+
+        lockItem.setOnAction(e -> lockScreen());
+        shutdownItem.setOnAction(e -> Platform.exit());
+        settingsItem.setOnAction(e -> spawnWindow("Settings", createSettingsApp()));
+
+        menu.getItems().addAll(lockItem, settingsItem, new SeparatorMenuItem(), shutdownItem);
+        menu.show(owner, Side.BOTTOM, 0, 4);
+    }
+
+    private void lockScreen() {
+        isRoot = false;
+        updateLoginScreenTheme();
+        loginPassword.clear();
+        loginScreen.setVisible(true);
+        desktop.setVisible(false);
+        dock.setVisible(false);
+    }
+
+    private Node createSettingsApp() {
+        VBox settings = new VBox(14);
+        settings.setPadding(new Insets(20));
+        settings.setStyle("-fx-background-color: " + currentTheme.surface + ";");
+
+        Label title = new Label("hyOS Settings");
+        title.setStyle("-fx-text-fill: " + currentTheme.accent + "; -fx-font-size: 18; -fx-font-weight: bold;");
+
+        Button themeBtn = new Button("Change Theme");
+        themeBtn.setStyle("-fx-background-color: " + currentTheme.accent + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;");
+        themeBtn.setOnAction(e -> spawnWindow("Theme Picker", createThemeApp()));
+
+        Button lockBtn = new Button("Lock Screen");
+        lockBtn.setStyle("-fx-background-color: #334155; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;");
+        lockBtn.setOnAction(e -> lockScreen());
+
+        settings.getChildren().addAll(title, themeBtn, lockBtn);
+        return settings;
+    }
+
+    private void updateLoginScreenTheme() {
+        loginScreen.setStyle("-fx-background-color: " + currentTheme.bg + ";");
+        loginTitle.setStyle("-fx-text-fill: " + currentTheme.accent + "; -fx-font-size: 24; -fx-font-weight: bold;");
+        loginPassword.setStyle("-fx-prompt-text-fill: #94a3b8; -fx-text-fill: " + currentTheme.text + "; -fx-background-color: " + currentTheme.surface + "; -fx-background-radius: 8; -fx-border-color: " + currentTheme.border + "; -fx-border-radius: 8; -fx-padding: 10;");
+        loginButton.setStyle("-fx-background-color: " + currentTheme.accent + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20;");
     }
 
     private void spawnSnake() {
