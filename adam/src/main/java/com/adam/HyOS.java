@@ -24,14 +24,17 @@ import javafx.stage.Stage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class HyOS extends Application {
 
     private Pane desktop;
     private StackPane root;
     private HBox dock;
+    private ScrollPane dockScroll;
     private VBox loginScreen;
     private Label loginTitle;
     private PasswordField loginPassword;
@@ -43,6 +46,8 @@ public class HyOS extends Application {
     private String osName = "hyOS Apex v10.2";
     private List<String> virtualDisk = new ArrayList<>(
             List.of("kernel.sys", "config.cfg", "media_cache.tmp", "readme.txt"));
+
+    private final Set<String> installedApps = new HashSet<>();
 
     // Stores actual text content for .txt files saved by the user
     private final java.util.Map<String, String> virtualDiskContents = new java.util.HashMap<>();
@@ -92,11 +97,18 @@ public class HyOS extends Application {
         dock.setAlignment(Pos.CENTER);
         dock.setPadding(new Insets(8, 15, 8, 15));
         dock.setStyle(
-                "-fx-background-color: rgba(15,23,42,0.9); -fx-background-radius: 20; -fx-border-color: #334155;");
+                "-fx-background-color: rgba(15,23,42,0.95); -fx-background-radius: 20; -fx-border-color: #334155;");
         dock.setMaxHeight(60);
         dock.setMaxWidth(Double.MAX_VALUE);
         dock.setPrefWidth(Double.MAX_VALUE);
         dock.setVisible(true);
+
+        dockScroll = new ScrollPane(dock);
+        dockScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        dockScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        dockScroll.setFitToHeight(true);
+        dockScroll.setPannable(true);
+        dockScroll.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-background: transparent;");
 
         systemClock = new Label();
         systemClock.setStyle("-fx-text-fill: #38bdf8; -fx-font-family: monospace; -fx-font-weight: bold; -fx-font-size: 12; -fx-padding: 0 10;");
@@ -105,9 +117,9 @@ public class HyOS extends Application {
         refreshLauncher();
         createLoginScreen();
 
-        VBox mainLayout = new VBox(desktop, dock);
+        VBox mainLayout = new VBox(desktop, dockScroll);
         VBox.setVgrow(desktop, Priority.ALWAYS);
-        StackPane.setMargin(dock, new Insets(0, 0, 15, 0));
+        StackPane.setMargin(dockScroll, new Insets(0, 0, 15, 0));
 
         root.getChildren().addAll(mainLayout, loginScreen);
 
@@ -535,38 +547,81 @@ public class HyOS extends Application {
         s.setStyle("-fx-background-color: #0f172a;");
         Label storeTitle = new Label("Software Store");
         storeTitle.setStyle("-fx-text-fill: #38bdf8; -fx-font-size: 16; -fx-font-weight: bold;");
-        
-        Button b1 = new Button("Install 🕹️ Snake");
-        b1.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
-        b1.setOnAction(e -> {
-            dock.getChildren().add(1, createLauncher("🕹️", "Snake", () -> spawnSnake()));
-            b1.setText("✔ Installed");
-            b1.setDisable(true);
-        });
-        Button b2 = new Button("Install 📝 Notepad");
-        b2.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
-        b2.setOnAction(e -> {
-            dock.getChildren().add(1, createLauncher("📝", "Notepad", () -> spawnWindow("Notepad", createNotepad())));
-            b2.setDisable(true);
-        });
-        Button b3 = new Button("Install 📊 hyStat");
-        b3.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
-        b3.setOnAction(e -> {
-            dock.getChildren().add(1,
-                    createLauncher("📊", "hyStat", () -> spawnWindow("System Monitor", createStatsApp())));
-            b3.setText("✔ Installed");
-            b3.setDisable(true);
-        });
-        Button b4 = new Button("Install 🎨 Themes");
-        b4.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
-        b4.setOnAction(e -> {
-            dock.getChildren().add(1,
-                    createLauncher("🎨", "Themes", () -> spawnWindow("Theme Picker", createThemeApp())));
-            b4.setText("✔ Installed");
-            b4.setDisable(true);
-        });
-        s.getChildren().addAll(storeTitle, b1, b2, b3, b4);
+        Label status = new Label();
+        status.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12;");
+
+        Button b1 = createAppInstallButton("Install 🕹️ Snake", "Snake", () -> spawnSnake());
+        Button b2 = createAppInstallButton("Install 📝 Notepad", "Notepad",
+                () -> spawnWindow("Notepad", createNotepad()));
+        Button b3 = createAppInstallButton("Install 📊 hyStat", "hyStat",
+                () -> spawnWindow("System Monitor", createStatsApp()));
+        Button b4 = createAppInstallButton("Install 🎨 Themes", "Themes",
+                () -> spawnWindow("Theme Picker", createThemeApp()));
+
+        s.getChildren().addAll(storeTitle, b1, b2, b3, b4, status);
+        updateAppStoreStatus(status);
         return s;
+    }
+
+    private Button createAppInstallButton(String label, String appId, Runnable action) {
+        Button btn = new Button(label);
+        btn.setStyle("-fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10;");
+        if (installedApps.contains(appId)) {
+            btn.setText("✔ Installed");
+            btn.setDisable(true);
+        }
+        btn.setOnAction(e -> {
+            if (!installedApps.contains(appId)) {
+                installedApps.add(appId);
+                dock.getChildren().add(1, createLauncher(getAppIcon(appId), appId, action));
+                btn.setText("✔ Installed");
+                btn.setDisable(true);
+                updateAllAppStoreWindows();
+            }
+        });
+        return btn;
+    }
+
+    private void updateAppStoreStatus(Label status) {
+        int count = installedApps.size();
+        if (count == 4) {
+            status.setText("All apps installed. No more items to add.");
+        } else {
+            status.setText(count + " of 4 apps installed.");
+        }
+    }
+
+    private String getAppIcon(String appId) {
+        return switch (appId) {
+            case "Snake" -> "🕹️";
+            case "Notepad" -> "📝";
+            case "hyStat" -> "📊";
+            case "Themes" -> "🎨";
+            default -> "📦";
+        };
+    }
+
+    private void updateAllAppStoreWindows() {
+        for (Node child : desktop.getChildren()) {
+            if (child instanceof HyWindow win && win.getChildren().size() > 1) {
+                Node content = win.getChildren().get(1);
+                if (content instanceof VBox box) {
+                    for (Node item : box.getChildren()) {
+                        if (item instanceof Label lbl && lbl.getText().startsWith("All apps installed")) {
+                            updateAppStoreStatus((Label) item);
+                        }
+                        if (item instanceof Button btn && btn.getText().startsWith("Install")) {
+                            String buttonText = btn.getText();
+                            String appId = buttonText.substring(buttonText.indexOf(' ') + 1).replace("🕹️ ", "Snake").replace("📝 ", "Notepad").replace("📊 ", "hyStat").replace("🎨 ", "Themes");
+                            if (installedApps.contains(appId)) {
+                                btn.setText("✔ Installed");
+                                btn.setDisable(true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // ── Stats
@@ -946,8 +1001,15 @@ public class HyOS extends Application {
         b.setMaxWidth(42);
         b.setMaxHeight(42);
         b.setTooltip(new Tooltip(name));
-        b.setStyle("-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        b.setStyle("-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-background-radius: 50; -fx-border-color: transparent; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
         b.setOnAction(e -> action.run());
+        b.hoverProperty().addListener((obs, wasHover, isHover) -> {
+            if (isHover) {
+                b.setStyle("-fx-font-size: 18; -fx-background-color: rgba(255,255,255,0.08); -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-background-radius: 50; -fx-border-color: transparent; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+            } else {
+                b.setStyle("-fx-font-size: 18; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-padding: 0; -fx-background-radius: 50; -fx-border-color: transparent; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+            }
+        });
         return b;
     }
 
@@ -955,7 +1017,14 @@ public class HyOS extends Application {
         Button start = new Button("Start");
         start.setPrefWidth(70);
         start.setPrefHeight(38);
-        start.setStyle("-fx-font-size: 13; -fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 8; -fx-background-radius: 8; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        start.setStyle("-fx-font-size: 13; -fx-background-color: rgba(255,255,255,0.08); -fx-cursor: hand; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        start.hoverProperty().addListener((obs, wasHover, isHover) -> {
+            if (isHover) {
+                start.setStyle("-fx-font-size: 13; -fx-background-color: rgba(255,255,255,0.16); -fx-cursor: hand; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+            } else {
+                start.setStyle("-fx-font-size: 13; -fx-background-color: rgba(255,255,255,0.08); -fx-cursor: hand; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 10; -fx-background-radius: 10; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+            }
+        });
         start.setOnAction(e -> showStartMenu(start));
         return start;
     }
@@ -991,15 +1060,15 @@ public class HyOS extends Application {
         Label title = new Label("hyOS Settings");
         title.setStyle("-fx-text-fill: " + currentTheme.accent + "; -fx-font-size: 18; -fx-font-weight: bold;");
 
-        Button themeBtn = new Button("Change Theme");
-        themeBtn.setStyle("-fx-background-color: " + currentTheme.accent + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;");
-        themeBtn.setOnAction(e -> spawnWindow("Theme Picker", createThemeApp()));
+        Label help = new Label("Install apps from the Store. Use Lock Screen or Shutdown from Start.");
+        help.setWrapText(true);
+        help.setStyle("-fx-text-fill: " + currentTheme.text + "; -fx-font-size: 13;");
 
         Button lockBtn = new Button("Lock Screen");
         lockBtn.setStyle("-fx-background-color: #334155; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 14;");
         lockBtn.setOnAction(e -> lockScreen());
 
-        settings.getChildren().addAll(title, themeBtn, lockBtn);
+        settings.getChildren().addAll(title, help, lockBtn);
         return settings;
     }
 
