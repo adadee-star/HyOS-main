@@ -3,4 +3,5 @@ this is a linux-like javaFX made operating system. you can download and extract 
 (password is "admin")
 UPDATE:
 HyOS can now be used on android via gluon mobile! download it here
-<a href="path/to/your-app.apk" download="YourAppName.apk">Download APK</a>
+
+[![Download APK](https://shields.io)](https://github.com)
